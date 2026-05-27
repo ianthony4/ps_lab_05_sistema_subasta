@@ -2,17 +2,12 @@
 
 Sistema diseñado para el curso de **Pruebas de Software** — actividad *Guerra de Testers*.
 
-Implementa **Pruebas de Caja Negra** completas:
-- 🗂️ Partición de Equivalencia (PE) — 60 casos
-- 📏 Análisis de Valores Límite (AVL) — 63 casos
-- ✅ **Total: 123 tests · 100% pasando**
-
 ---
 
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```
-testvs/
+ps_lab_05_sistema_subasta-main/
 ├── app/
 │   ├── __init__.py
 │   ├── models.py         # Modelos: Usuario, Articulo, Puja, Subasta
@@ -30,7 +25,7 @@ testvs/
 
 ---
 
-## ⚙️ Requisitos previos
+##  Requisitos previos
 
 - Python 3.10 o superior
 - `tkinter` incluido con Python (en Ubuntu/WSL puede necesitar instalación)
@@ -38,15 +33,15 @@ testvs/
 
 ---
 
-## 🚀 Instalación y ejecución (Windows WSL / Ubuntu)
+##  Instalación y ejecución
 
 ### 1. Clonar o descargar el proyecto
 
 ```bash
 cd ~
 # Si usas git:
-git clone <URL_DEL_REPO> testvs
-cd testvs
+git clone <URL_DEL_REPO> ps_lab_05_sistema_subasta-main
+cd ps_lab_05_sistema_subasta-main
 
 # O si ya tienes la carpeta:
 cd testvs
@@ -77,14 +72,9 @@ pip install -r requirements.txt
 ```bash
 python3 gui.py
 ```
-
-> **Nota WSL:** Si aparece el error `cannot connect to X server`, necesitas un servidor X instalado en Windows.  
-> Opciones: [VcXsrv](https://sourceforge.net/projects/vcxsrv/), [Xming](https://sourceforge.net/projects/xming/), o usar **WSLg** (Windows 11 lo incluye por defecto).  
-> Con WSLg no necesitas configuración adicional.
-
 ---
 
-## 🧪 Ejecutar las pruebas
+## Ejecutar las pruebas
 
 ```bash
 # Activar el entorno virtual primero:
@@ -98,18 +88,9 @@ python3 -m pytest tests/test_pe.py -v
 
 # Solo Análisis de Valores Límite:
 python3 -m pytest tests/test_avl.py -v
-
-# Resumen corto:
-python3 -m pytest tests/ -v --tb=short
-
-# Con reporte de cobertura:
-python3 -m pytest tests/ --cov=app --cov-report=term-missing
 ```
 
-**Resultado esperado:**
-```
-123 passed in 0.08s
-```
+
 
 ---
 
@@ -129,7 +110,7 @@ python3 -m pytest tests/ --cov=app --cov-report=term-missing
 
 ---
 
-## 📋 Reglas de negocio (validaciones clave)
+##  Reglas de negocio (validaciones clave)
 
 | Campo | Regla |
 |-------|-------|
@@ -144,10 +125,9 @@ python3 -m pytest tests/ --cov=app --cov-report=term-missing
 
 ---
 
-## 🏗️ Tecnologías
+##  Tecnologías
 
 - **Python 3.10+**
 - **Tkinter** — interfaz gráfica
 - **pytest** — framework de pruebas
-- **pytest-cov** — cobertura de código
 
