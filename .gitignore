@@ -1,0 +1,27 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# pytest / cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentación interna (solo para el equipo, no se sube)
+docs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
