@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💥 Guía para Romper el Sistema — Hotel</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root {
+      --bg: #080a0f; --surface: #0f1117; --surface2: #161b27;
+      --border: #1a2235; --red: #f87171; --red-dim: #3b0a0a;
+      --red2: #ef4444; --orange: #fb923c; --orange-dim: #2d1500;
+      --yellow: #fbbf24; --yellow-dim: #1f1200;
+      --green: #4ade80; --green-dim: #052b13;
+      --cyan: #22d3ee; --accent: #a78bfa; --accent2: #c4b5fd;
+      --text: #f1f5f9; --text-dim: #475569; --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, #080a0f 0%, #1a0505 50%, #080a0f 100%);
+      border-bottom: 1px solid #3b0a0a;
+      padding: 56px 40px 48px; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(239,68,68,.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.4);
+      border-radius: 100px; padding: 5px 18px;
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--red); margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(26px, 5vw, 52px); font-weight: 800; line-height: 1.12;
+      background: linear-gradient(135deg, #fff 20%, var(--red) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 14px;
+    }
+    .hero p { color: var(--text-muted); font-size: 15px; max-width: 600px; margin: 0 auto 26px; line-height: 1.7; }
+    .warning-box {
+      max-width: 620px; margin: 0 auto;
+      background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.3);
+      border-radius: 12px; padding: 14px 20px;
+      font-size: 13px; color: var(--yellow); line-height: 1.6;
+    }
+
+    /* CONTAINER */
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* SEVERITY OVERVIEW */
+    .overview { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-bottom: 44px; }
+    .ov-card { border-radius: 12px; padding: 16px 18px; border: 1px solid; }
+    .ov-crit { background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.35); }
+    .ov-high { background: rgba(251,146,60,.08); border-color: rgba(251,146,60,.35); }
+    .ov-med  { background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.35); }
+    .ov-low  { background: rgba(74,222,128,.08); border-color: rgba(74,222,128,.35); }
+    .ov-icon { font-size: 22px; margin-bottom: 6px; }
+    .ov-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 4px; }
+    .ov-crit .ov-label { color: var(--red); }
+    .ov-high .ov-label { color: var(--orange); }
+    .ov-med  .ov-label { color: var(--yellow); }
+    .ov-low  .ov-label { color: var(--green); }
+    .ov-count { font-size: 28px; font-weight: 800; color: #fff; }
+    .ov-desc { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+
+    /* VULN CARD */
+    .vuln { border-radius: 14px; border: 1px solid; margin-bottom: 28px; overflow: hidden; }
+    .vuln-crit { border-color: rgba(239,68,68,.4); }
+    .vuln-high { border-color: rgba(251,146,60,.4); }
+    .vuln-med  { border-color: rgba(251,191,36,.4); }
+
+    .vuln-header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+    .vuln-crit .vuln-header { background: rgba(239,68,68,.1); }
+    .vuln-high .vuln-header { background: rgba(251,146,60,.08); }
+    .vuln-med  .vuln-header { background: rgba(251,191,36,.06); }
+
+    .vuln-sev { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; padding: 3px 10px; border-radius: 6px; white-space: nowrap; }
+    .sev-crit { background: rgba(239,68,68,.2); color: var(--red); border: 1px solid rgba(239,68,68,.5); }
+    .sev-high { background: rgba(251,146,60,.15); color: var(--orange); border: 1px solid rgba(251,146,60,.4); }
+    .sev-med  { background: rgba(251,191,36,.12); color: var(--yellow); border: 1px solid rgba(251,191,36,.35); }
+
+    .vuln-title { font-size: 16px; font-weight: 700; color: #fff; flex: 1; }
+    .vuln-module { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+
+    .vuln-body { padding: 20px; background: var(--surface); }
+    .vuln-body p { font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-bottom: 16px; }
+
+    /* Exploit steps */
+    .steps { counter-reset: step; margin-bottom: 16px; }
+    .step {
+      counter-increment: step; display: flex; gap: 14px;
+      margin-bottom: 10px; align-items: flex-start;
+    }
+    .step::before {
+      content: counter(step); min-width: 24px; height: 24px;
+      background: rgba(239,68,68,.2); color: var(--red);
+      border: 1px solid rgba(239,68,68,.4); border-radius: 50%;
+      font-size: 11px; font-weight: 700; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .vuln-high .step::before { background: rgba(251,146,60,.15); color: var(--orange); border-color: rgba(251,146,60,.4); }
+    .vuln-med  .step::before { background: rgba(251,191,36,.12); color: var(--yellow); border-color: rgba(251,191,36,.35); }
+    .step-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* Code block */
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border); border-radius: 10px;
+      padding: 16px 18px; font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; line-height: 1.7; color: #e2e8f0;
+      overflow-x: auto; margin-bottom: 14px;
+    }
+    .code-block .comment { color: #475569; }
+    .code-block .key { color: #7dd3fc; }
+    .code-block .val { color: #86efac; }
+    .code-block .str { color: #fde68a; }
+    .code-block .num { color: #fb923c; }
+    .code-block .method { color: #c4b5fd; }
+    .code-block .url { color: #f9a8d4; }
+    .code-block .err { color: #f87171; }
+
+    /* Expected result */
+    .expected { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .exp-item { border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; }
+    .exp-bug  { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.4); }
+    .exp-pass { background: rgba(74,222,128,.1); color: var(--green); border: 1px solid rgba(74,222,128,.35); }
+    .exp-info { background: rgba(34,211,238,.1); color: var(--cyan); border: 1px solid rgba(34,211,238,.35); }
+
+    /* Section header */
+    .sec-hdr { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; margin-top: 40px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .sec-hdr h2 { font-size: 18px; font-weight: 700; color: #fff; }
+    .sec-hdr span { font-size: 12px; color: var(--text-dim); display: block; margin-top: 2px; }
+
+    /* Table */
+    .table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 12px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead tr { background: var(--surface2); }
+    thead th { padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+    tbody tr { background: var(--surface); }
+    tbody tr:hover { background: var(--surface2); }
+    tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    td { padding: 9px 14px; vertical-align: middle; line-height: 1.5; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+    footer { text-align: center; padding: 22px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-badge">⚔️ Guerra de Testers · Modo Atacante</div>
+  <h1>💥 Guía para Romper el Sistema de Hotel</h1>
+  <p>Análisis de puntos débiles, casos de prueba no cubiertos y vulnerabilidades de lógica de negocio en el Sistema de Hotel del equipo rival</p>
+  <div class="warning-box">
+    ⚠️ <strong>Solo para fines académicos.</strong> Esta guía documenta pruebas de caja negra que exponen debilidades del sistema. El objetivo es encontrar fallos que el equipo rival no cubrió en sus propios tests.
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SEVERIDAD OVERVIEW -->
+  <div class="overview">
+    <div class="ov-card ov-crit"><div class="ov-icon">🔴</div><div class="ov-label">Crítico</div><div class="ov-count">3</div><div class="ov-desc">Rompe lógica de negocio core</div></div>
+    <div class="ov-card ov-high"><div class="ov-icon">🟠</div><div class="ov-label">Alto</div><div class="ov-count">4</div><div class="ov-desc">Datos corruptos o estados inválidos</div></div>
+    <div class="ov-card ov-med"><div class="ov-icon">🟡</div><div class="ov-label">Medio</div><div class="ov-count">5</div><div class="ov-desc">Casos borde no probados</div></div>
+    <div class="ov-card ov-low"><div class="ov-icon">🟢</div><div class="ov-label">Cobertura</div><div class="ov-count">77</div><div class="ov-desc">Tests del equipo rival</div></div>
+  </div>
+
+  <!-- ══════════════════════ SECCIÓN 1: CRÍTICOS ══════════════════════ -->
+  <div class="sec-hdr"><span style="font-size:22px">🔴</span><div><h2>Vulnerabilidades Críticas</h2><span>Rompen la lógica de negocio central del sistema</span></div></div>
+
+  <!-- VULN 1 -->
+  <div class="vuln vuln-crit">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-crit">🔴 CRÍTICO</span>
+      <span class="vuln-title">VULN-01 · Completar reservación SIN factura pagada → habitación se libera gratis</span>
+      <span class="vuln-module">reservationService.js · PATCH /api/reservaciones/:id/completar</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El endpoint <code style="color:var(--cyan);font-family:monospace">PATCH /api/reservaciones/:id/completar</code> cambia la reservación a <strong>"completada"</strong> y libera la habitación
+        <strong>sin verificar si existe una factura pagada</strong>. Es decir, un huésped puede hacer check-out
+        sin pagar nunca. El test del equipo rival solo verifica que el estado cambie y la habitación se libere,
+        pero <em>nunca verifica que haya pago previo.</em>
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear huésped y reservación normalmente.</div></div>
+        <div class="step"><div class="step-text">NO crear ninguna factura ni pago.</div></div>
+        <div class="step"><div class="step-text">Llamar directamente a <code style="color:var(--cyan);font-family:monospace">PATCH /api/reservaciones/{id}/completar</code>.</div></div>
+        <div class="step"><div class="step-text">El sistema devuelve 200 y marca la reservación como completada y libera la habitación.</div></div>
+        <div class="step"><div class="step-text">La estadía fue <strong>sin costo</strong>. No se generó ninguna factura ni pago.</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// 1. Crear reservación</span>
+<span class="method">POST</span> <span class="url">/api/reservaciones</span>
+{ <span class="key">"huespedId"</span>: <span class="str">"&lt;id&gt;"</span>, <span class="key">"habitacionId"</span>: <span class="str">"&lt;id&gt;"</span>,
+  <span class="key">"fechaCheckIn"</span>: <span class="str">"2027-01-10"</span>, <span class="key">"fechaCheckOut"</span>: <span class="str">"2027-01-15"</span>, <span class="key">"numHuespedes"</span>: <span class="num">1</span> }
+
+<span class="comment">// 2. Completar SIN pagar — debería fallar pero NO lo hace</span>
+<span class="method">PATCH</span> <span class="url">/api/reservaciones/{reservacionId}/completar</span>
+<span class="comment">// → 200 OK 😱 ← estado: "completada", habitación libre, CERO pagos</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug: Sistema acepta checkout sin pago</span>
+        <span class="exp-info">Debería ser: 422 si no hay factura pagada</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 2 -->
+  <div class="vuln vuln-crit">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-crit">🔴 CRÍTICO</span>
+      <span class="vuln-title">VULN-02 · Doble reservación en la misma habitación con fechas solapadas</span>
+      <span class="vuln-module">reservationService.js · createReservation()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El código sí tiene validación de solapamiento, pero <strong>no hay ningún test en la suite del equipo rival</strong>
+        que verifique este escenario. Si existe un bug en la lógica de solapamiento (condición de fecha exacta),
+        se puede crear una segunda reservación que empiece el día que termina la primera (mismo día de checkout ↔ checkin),
+        lo que generaría un conflicto real en el hotel.
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear Reservación A: <code style="color:var(--cyan);font-family:monospace">check-in: 2027-02-01 · check-out: 2027-02-05</code></div></div>
+        <div class="step"><div class="step-text">Crear Reservación B (misma habitación): <code style="color:var(--cyan);font-family:monospace">check-in: 2027-02-05 · check-out: 2027-02-08</code></div></div>
+        <div class="step"><div class="step-text">La condición de solapamiento es: <code style="color:var(--yellow);font-family:monospace">data.fechaCheckIn &lt; r.fechaCheckOut &amp;&amp; data.fechaCheckOut &gt; r.fechaCheckIn</code></div></div>
+        <div class="step"><div class="step-text">Con fechas exactas: <code style="color:var(--yellow);font-family:monospace">2027-02-05 &lt; 2027-02-05</code> → <strong>false</strong>. El sistema ACEPTA la reservación.</div></div>
+        <div class="step"><div class="step-text">La habitación queda "ocupada" pero con 2 reservaciones al mismo tiempo en sus límites de fecha.</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// Reservación A ya existe</span>
+{ <span class="key">"fechaCheckIn"</span>: <span class="str">"2027-02-01"</span>, <span class="key">"fechaCheckOut"</span>: <span class="str">"2027-02-05"</span> }
+
+<span class="comment">// Reservación B — check-in = check-out de A → NO hay solapamiento según código</span>
+<span class="method">POST</span> <span class="url">/api/reservaciones</span>
+{ <span class="key">"habitacionId"</span>: <span class="str">"&lt;misma habitación&gt;"</span>,
+  <span class="key">"fechaCheckIn"</span>: <span class="str">"2027-02-05"</span>, <span class="key">"fechaCheckOut"</span>: <span class="str">"2027-02-08"</span>, <span class="key">"numHuespedes"</span>: <span class="num">1</span> }
+<span class="comment">// → ¿409 o 201? — La habitación figura como OCUPADA, pero el solapamiento pasa</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 No hay test de solapamiento de fechas</span>
+        <span class="exp-info">Debería ser: 409 Conflict siempre que la habitación ya tenga reservación activa</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 3 -->
+  <div class="vuln vuln-crit">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-crit">🔴 CRÍTICO</span>
+      <span class="vuln-title">VULN-03 · Facturar una reservación ya completada (post check-out)</span>
+      <span class="vuln-module">billingService.js · createBilling()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El servicio de facturación verifica que la reservación no esté cancelada, pero <strong>permite crear facturas
+        sobre reservaciones ya "completadas"</strong>. Esto significa que se puede generar una segunda factura
+        después del check-out. El equipo rival no tiene ningún test que verifique este caso.
+        Un huésped podría recibir dos cobros por la misma estadía si el sistema anula la primera y se genera una segunda.
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear reservación → completarla (<code style="color:var(--cyan);font-family:monospace">PATCH /completar</code>).</div></div>
+        <div class="step"><div class="step-text">Crear factura para esa reservación completada.</div></div>
+        <div class="step"><div class="step-text">El sistema NO debería aceptarlo si la reservación ya fue completada sin pago previo.</div></div>
+        <div class="step"><div class="step-text">Sin embargo el código solo rechaza si <code style="color:var(--yellow);font-family:monospace">estado === 'cancelada'</code>. Estado "completada" pasa sin problema.</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// reservacion.estado = "completada" ya existe</span>
+<span class="method">POST</span> <span class="url">/api/facturacion</span>
+{ <span class="key">"reservacionId"</span>: <span class="str">"&lt;id de reservación completada&gt;"</span>, <span class="key">"metodoPago"</span>: <span class="str">"efectivo"</span> }
+<span class="comment">// → 201 Created 😱 ← Factura creada sobre reservación ya cerrada</span>
+
+<span class="comment">// Línea en billingService.js:</span>
+<span class="comment">// if (reservation.estado === 'cancelada') {  ← solo bloquea canceladas</span>
+<span class="err">// Falta verificar: if (reservation.estado === 'completada') → error</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug: Factura permitida sobre reservación completada sin pago</span>
+        <span class="exp-info">Debería ser: 422 si la reservación ya está completada</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SECCIÓN 2: ALTOS ══════════════════════ -->
+  <div class="sec-hdr"><span style="font-size:22px">🟠</span><div><h2>Vulnerabilidades de Severidad Alta</h2><span>Generan estados inconsistentes o datos corruptos</span></div></div>
+
+  <!-- VULN 4 -->
+  <div class="vuln vuln-high">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-high">🟠 ALTO</span>
+      <span class="vuln-title">VULN-04 · Actualizar habitación ocupada al estado "disponible" directamente</span>
+      <span class="vuln-module">roomValidator.js · PATCH /api/habitaciones/:id</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El endpoint de actualización de habitaciones permite cambiar el campo <code style="color:var(--cyan);font-family:monospace">estado</code> a cualquier valor válido
+        (<em>disponible, ocupada, mantenimiento</em>). Si una habitación está ocupada (tiene reservación activa),
+        se puede forzar su estado a "disponible", permitiendo que otra persona la reserve mientras la primera reservación sigue activa.
+        <strong>El equipo rival no testea actualizaciones de habitaciones.</strong>
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear reservación para habitación X → el sistema la marca como "ocupada".</div></div>
+        <div class="step"><div class="step-text">Usar el endpoint PATCH para cambiar el estado de esa habitación a "disponible".</div></div>
+        <div class="step"><div class="step-text">Crear una segunda reservación para la misma habitación.</div></div>
+        <div class="step"><div class="step-text">Ahora hay 2 reservaciones confirmadas para la misma habitación en el mismo período.</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// Habitación X está "ocupada" por reservación activa</span>
+<span class="method">PATCH</span> <span class="url">/api/habitaciones/{habitacionId}</span>
+{ <span class="key">"estado"</span>: <span class="str">"disponible"</span> }  <span class="comment">// Fuerza estado sin validar reservaciones activas</span>
+
+<span class="comment">// Ahora crear otra reservación en la misma habitación</span>
+<span class="method">POST</span> <span class="url">/api/reservaciones</span>
+{ <span class="key">"habitacionId"</span>: <span class="str">"&lt;misma habitación X&gt;"</span>, ... }
+<span class="comment">// → 201 Created 😱 ← Dos reservaciones activas en la misma habitación</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug: Estado de habitación desincronizado con reservaciones activas</span>
+        <span class="exp-info">Debería verificar: no permitir cambiar a "disponible" si hay reservación activa</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 5 -->
+  <div class="vuln vuln-high">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-high">🟠 ALTO</span>
+      <span class="vuln-title">VULN-05 · Cancelar reservación con factura pendiente → factura queda huérfana</span>
+      <span class="vuln-module">reservationService.js · cancelReservation()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        Si se cancela una reservación que ya tiene una factura en estado <strong>"pendiente"</strong>, la factura queda
+        en el sistema en un estado imposible: es "pendiente" de una reservación "cancelada". No existe test que verifique
+        que al cancelar la reservación, la factura se anule automáticamente.
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear reservación y luego crear su factura (estado: pendiente).</div></div>
+        <div class="step"><div class="step-text">Cancelar la reservación (<code style="color:var(--cyan);font-family:monospace">PATCH /reservaciones/:id/cancelar</code>).</div></div>
+        <div class="step"><div class="step-text">Consultar la factura: sigue en estado "pendiente" referenciando una reservación "cancelada".</div></div>
+        <div class="step"><div class="step-text">Ahora intentar pagar esa factura → el sistema la acepta (no verifica si la reservación fue cancelada).</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// 1. Crear factura → pendiente</span>
+<span class="method">POST</span> <span class="url">/api/facturacion</span> { <span class="key">"reservacionId"</span>: <span class="str">"&lt;id&gt;"</span>, <span class="key">"metodoPago"</span>: <span class="str">"efectivo"</span> }
+
+<span class="comment">// 2. Cancelar reservación</span>
+<span class="method">PATCH</span> <span class="url">/api/reservaciones/{id}/cancelar</span>
+<span class="comment">// → 200 OK, reservación=cancelada, PERO factura sigue "pendiente"</span>
+
+<span class="comment">// 3. Pagar la factura huérfana</span>
+<span class="method">PATCH</span> <span class="url">/api/facturacion/{facturaId}/pagar</span>
+<span class="comment">// → 200 OK 😱 ← Pago de una factura de reservación cancelada</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug: Facturas huérfanas al cancelar reservación</span>
+        <span class="exp-info">Debería: anular automáticamente facturas pendientes al cancelar reservación</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 6 -->
+  <div class="vuln vuln-high">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-high">🟠 ALTO</span>
+      <span class="vuln-title">VULN-06 · Actualizar DNI de huésped a uno ya existente sin verificar unicidad</span>
+      <span class="vuln-module">guestValidator.js · validateGuestUpdate() · PATCH /api/huespedes/:id</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        Al crear un huésped, el sistema verifica que el DNI no esté duplicado. Sin embargo, en
+        <code style="color:var(--cyan);font-family:monospace">validateGuestUpdate()</code> <strong>solo se valida el formato del DNI pero no su unicidad</strong>.
+        Esto permite actualizar el DNI de un huésped al DNI de otro huésped ya registrado, creando inconsistencia en los datos.
+        No existe ningún test de actualización de huéspedes en la suite del equipo.
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Huésped A tiene DNI <code style="color:var(--yellow);font-family:monospace">12345678</code>.</div></div>
+        <div class="step"><div class="step-text">Huésped B tiene DNI <code style="color:var(--yellow);font-family:monospace">87654321</code>.</div></div>
+        <div class="step"><div class="step-text">Actualizar Huésped B con el DNI de A: <code style="color:var(--yellow);font-family:monospace">PATCH /api/huespedes/{idB}</code> → dni: "12345678"</div></div>
+        <div class="step"><div class="step-text">El sistema acepta el cambio. Ahora dos huéspedes tienen el mismo DNI.</div></div>
+      </div>
+      <div class="code-block">
+<span class="method">PATCH</span> <span class="url">/api/huespedes/{idHuespedB}</span>
+{ <span class="key">"dni"</span>: <span class="str">"12345678"</span> }  <span class="comment">// DNI que ya tiene el huésped A</span>
+<span class="comment">// → 200 OK 😱 ← Dos huéspedes con el mismo DNI en el sistema</span>
+
+<span class="comment">// En guestValidator.js validateGuestUpdate():</span>
+<span class="comment">// Solo valida: /^\d{8}$/ — NO verifica duplicados</span>
+<span class="err">// Falta: buscar en el store si otro guest ya tiene ese DNI</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug: DNI duplicado permitido en actualización</span>
+        <span class="exp-info">Debería: 409 si el DNI ya está registrado en otro huésped</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 7 -->
+  <div class="vuln vuln-high">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-high">🟠 ALTO</span>
+      <span class="vuln-title">VULN-07 · Descuento decimal no bloqueado (descuento=50.9 pasa como válido)</span>
+      <span class="vuln-module">billingValidator.js · validateBilling()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El validador de descuentos solo verifica el rango <code style="color:var(--cyan);font-family:monospace">0 ≤ descuento ≤ 50</code>, pero
+        <strong>no restringe que el descuento sea entero</strong>. Un descuento de <code style="color:var(--yellow);font-family:monospace">50.9</code> pasaría la validación
+        (<code style="color:var(--yellow);font-family:monospace">50.9 ≤ 50</code> es false → rechaza). Pero un descuento como <code style="color:var(--yellow);font-family:monospace">49.99</code> sería aceptado
+        cuando el test del equipo solo prueba enteros. Adicionalmente, valores como <code style="color:var(--yellow);font-family:monospace">0.001</code> o
+        <code style="color:var(--yellow);font-family:monospace">49.999</code> generan cálculos de IGV con errores de floating-point que no están documentados.
+      </p>
+      <div class="code-block">
+<span class="method">POST</span> <span class="url">/api/facturacion</span>
+{ <span class="key">"reservacionId"</span>: <span class="str">"&lt;id&gt;"</span>, <span class="key">"metodoPago"</span>: <span class="str">"efectivo"</span>, <span class="key">"descuento"</span>: <span class="num">49.999</span> }
+<span class="comment">// → 201 Created — descuento acepta decimales infinitos</span>
+<span class="comment">// El cálculo: subtotal * 49.999 / 100 puede generar imprecisión de punto flotante</span>
+
+<span class="comment">// También probar:</span>
+{ <span class="key">"descuento"</span>: <span class="num">0.001</span> }  <span class="comment">// ¿Genera igv correcto?</span>
+{ <span class="key">"descuento"</span>: <span class="num">33.333</span> }  <span class="comment">// Un tercio exacto — posible error de redondeo</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 No probado: descuentos decimales y errores de redondeo</span>
+        <span class="exp-info">Caso borde: descuento=49.999 → cálculo de IGV con floating-point</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════ SECCIÓN 3: MEDIOS ══════════════════════ -->
+  <div class="sec-hdr"><span style="font-size:22px">🟡</span><div><h2>Casos No Cubiertos — Severidad Media</h2><span>Brechas en cobertura que el equipo rival no testeó</span></div></div>
+
+  <!-- VULN 8 -->
+  <div class="vuln vuln-med">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-med">🟡 MEDIO</span>
+      <span class="vuln-title">VULN-08 · Nombre con solo espacios en blanco pasa la validación</span>
+      <span class="vuln-module">guestValidator.js · sanitizeString()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        La función <code style="color:var(--cyan);font-family:monospace">sanitizeString()</code> hace <code style="color:var(--cyan);font-family:monospace">.trim()</code> antes de validar la longitud.
+        Si se envía un nombre como <code style="color:var(--yellow);font-family:monospace">"   "</code> (solo espacios), el trim lo convierte en <code style="color:var(--yellow);font-family:monospace">""</code>
+        y se rechaza correctamente. Pero un nombre como <code style="color:var(--yellow);font-family:monospace">"A "</code> tiene longitud 1 post-trim y se rechaza.
+        Sin embargo, <code style="color:var(--yellow);font-family:monospace">"Ab "</code> (2 chars útiles + espacio) pasa porque la longitud sanitizada es 2 = MIN.
+        El test del equipo rival prueba "Ab" (2 chars) pero no prueba nombres con espacios intermedios excesivos.
+      </p>
+      <div class="code-block">
+<span class="comment">// Casos no probados por el equipo rival:</span>
+{ <span class="key">"nombre"</span>: <span class="str">"A B"</span> }          <span class="comment">// 3 chars con espacio — ¿pasa patrón NAME_PATTERN?</span>
+{ <span class="key">"nombre"</span>: <span class="str">"  Juan  "</span> }    <span class="comment">// Espacios al inicio/fin — sanitiza pero ¿patrón?</span>
+{ <span class="key">"nombre"</span>: <span class="str">"Juan  Carlos"</span> } <span class="comment">// Doble espacio — colapsa a "Juan Carlos" por replace(/\s+/g,' ')</span>
+{ <span class="key">"nombre"</span>: <span class="str">"Ñoño"</span> }        <span class="comment">// Caracteres Unicode especiales — ¿pasa NAME_PATTERN?</span>
+{ <span class="key">"nombre"</span>: <span class="str">"María José"</span> }  <span class="comment">// Tilde y acento — ¿qué dice NAME_PATTERN?</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Sin cobertura: nombres con caracteres Unicode, tildes, Ñ</span>
+        <span class="exp-info">Caso interesante: ¿"Ñoño" pasa como nombre válido de huésped peruano?</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 9 -->
+  <div class="vuln vuln-med">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-med">🟡 MEDIO</span>
+      <span class="vuln-title">VULN-09 · Check-in con fecha de HOY — comportamiento ambiguo</span>
+      <span class="vuln-module">reservationValidator.js · getTodayString()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        La validación de check-in rechaza fechas pasadas con <code style="color:var(--yellow);font-family:monospace">data.fechaCheckIn &lt; today</code>.
+        Esto significa que check-in con <strong>fecha de hoy es aceptado</strong>. El equipo rival no probó
+        este caso límite. En un hotel real, los check-in del día de hoy tienen reglas especiales (hora de check-in).
+        Más importante: los tests del equipo rival usan <code style="color:var(--cyan);font-family:monospace">getFutureDate(1)</code> (siempre mañana),
+        nunca prueban <code style="color:var(--cyan);font-family:monospace">getFutureDate(0)</code> (hoy).
+      </p>
+      <div class="code-block">
+<span class="comment">// Caso no probado: check-in HOY</span>
+<span class="method">POST</span> <span class="url">/api/reservaciones</span>
+{
+  <span class="key">"fechaCheckIn"</span>: <span class="str">"&lt;fecha de hoy YYYY-MM-DD&gt;"</span>,
+  <span class="key">"fechaCheckOut"</span>: <span class="str">"&lt;mañana&gt;"</span>,
+  <span class="key">"numHuespedes"</span>: <span class="num">1</span>
+}
+<span class="comment">// Código: if (data.fechaCheckIn &lt; today) → "hoy" NO es menor que "hoy"</span>
+<span class="comment">// → 201 Created — check-in HOY aceptado. ¿Es correcto?</span>
+      </div>
+      <div class="expected">
+        <span class="exp-info">🔍 No cubierto: reservación con check-in = hoy</span>
+        <span class="exp-info">El test que falta: AVL-FECHA para fecha de hoy (límite)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 10 -->
+  <div class="vuln vuln-med">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-med">🟡 MEDIO</span>
+      <span class="vuln-title">VULN-10 · Precio con más de 2 decimales en actualización no se valida</span>
+      <span class="vuln-module">roomValidator.js · validateRoomUpdate()</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        Al <strong>crear</strong> una habitación, el validador verifica que el precio no tenga más de 2 decimales.
+        Pero en <code style="color:var(--cyan);font-family:monospace">validateRoomUpdate()</code>, esa verificación <strong>no está presente</strong>.
+        Se puede actualizar el precio de una habitación a <code style="color:var(--yellow);font-family:monospace">100.123</code> y el sistema lo acepta.
+        Esto puede generar errores de redondeo en todos los cálculos posteriores de facturas.
+      </p>
+      <div class="code-block">
+<span class="comment">// Crear habitación normal</span>
+<span class="method">POST</span> <span class="url">/api/habitaciones</span>
+{ <span class="key">"numero"</span>: <span class="num">500</span>, <span class="key">"tipo"</span>: <span class="str">"doble"</span>, <span class="key">"precio"</span>: <span class="num">200.00</span>, <span class="key">"piso"</span>: <span class="num">5</span> }
+
+<span class="comment">// Actualizar con precio de 3 decimales — PASA sin error</span>
+<span class="method">PATCH</span> <span class="url">/api/habitaciones/{id}</span>
+{ <span class="key">"precio"</span>: <span class="num">199.999</span> }
+<span class="comment">// → 200 OK 😱 ← precio con 3 decimales → genera errores en facturación</span>
+
+<span class="comment">// En roomValidator.js validateRoomUpdate():</span>
+<span class="comment">// Solo valida: precio en rango — SIN verificar decimales</span>
+<span class="err">// Línea 117-124: falta el bloque de validación de decimales</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Bug por omisión: actualización de precio sin validar decimales</span>
+        <span class="exp-info">Cobertura faltante: tests de PATCH habitaciones con precios irregulares</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 11 -->
+  <div class="vuln vuln-med">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-med">🟡 MEDIO</span>
+      <span class="vuln-title">VULN-11 · Eliminar huésped con reservación activa no está restringido</span>
+      <span class="vuln-module">guestService.js · DELETE /api/huespedes/:id</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El módulo de huéspedes tiene un endpoint <code style="color:var(--cyan);font-family:monospace">DELETE /api/huespedes/:id</code>.
+        No existe ningún test que verifique si se puede eliminar un huésped que tiene una reservación activa.
+        Si se permite esta operación, la reservación quedaría referenciando un huésped inexistente,
+        corrompiendo la integridad referencial del sistema.
+      </p>
+      <div class="steps">
+        <div class="step"><div class="step-text">Crear huésped y crear una reservación confirmada para ese huésped.</div></div>
+        <div class="step"><div class="step-text">Intentar <code style="color:var(--cyan);font-family:monospace">DELETE /api/huespedes/{id}</code>.</div></div>
+        <div class="step"><div class="step-text">Si el sistema acepta: la reservación ahora referencia <code style="color:var(--yellow);font-family:monospace">huespedId</code> de un huésped inexistente.</div></div>
+        <div class="step"><div class="step-text">Consultar la reservación: <code style="color:var(--cyan);font-family:monospace">nombreHuesped</code> aún existe en el objeto, pero el huésped no.</div></div>
+      </div>
+      <div class="code-block">
+<span class="comment">// Huésped tiene reservación confirmada</span>
+<span class="method">DELETE</span> <span class="url">/api/huespedes/{huespedConReservacion}</span>
+<span class="comment">// → ¿200 OK? o ¿422 Error? — El equipo rival NO probó este caso</span>
+
+<span class="comment">// Si devuelve 200: reservación queda huérfana</span>
+<span class="comment">// La reservación aún tiene huespedId que ya no existe en el store</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Sin test: DELETE huésped con reservación activa</span>
+        <span class="exp-info">Debería ser: 422 si el huésped tiene reservaciones activas</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VULN 12 -->
+  <div class="vuln vuln-med">
+    <div class="vuln-header">
+      <span class="vuln-sev sev-med">🟡 MEDIO</span>
+      <span class="vuln-title">VULN-12 · numHuespedes mayor a capacidad del tipo de habitación → ningún test lo cubre correctamente</span>
+      <span class="vuln-module">reservationService.js · ROOM_RULES.MAX_GUESTS_BY_TYPE</span>
+    </div>
+    <div class="vuln-body">
+      <p>
+        El sistema tiene capacidades por tipo: <strong>individual=1, doble=2, suite=4</strong>.
+        El test <code style="color:var(--cyan);font-family:monospace">PE-I-HUE3</code> rechaza 5 huéspedes con un 400, pero <strong>usa la habitación del seed
+        sin saber su tipo real</strong>. Si la habitación del seed es una "suite" (capacidad 4), el test pasa por las razones equivocadas
+        (el validador de formato rechaza 5 antes de verificar la capacidad del tipo).
+        No hay test que intente reservar una habitación individual con 2 huéspedes.
+      </p>
+      <div class="code-block">
+<span class="comment">// Ningún test prueba esto específicamente:</span>
+<span class="comment">// Habitación tipo "individual" (capacidad máx: 1)</span>
+<span class="method">POST</span> <span class="url">/api/reservaciones</span>
+{
+  <span class="key">"habitacionId"</span>: <span class="str">"&lt;id de habitación INDIVIDUAL&gt;"</span>,
+  <span class="key">"numHuespedes"</span>: <span class="num">2</span>  <span class="comment">// Supera capacidad de individual</span>
+}
+<span class="comment">// Debería ser 422 (excede capacidad) pero el equipo no lo testea</span>
+
+<span class="comment">// Tampoco se prueba:</span>
+{ <span class="key">"habitacionId"</span>: <span class="str">"&lt;DOBLE&gt;"</span>, <span class="key">"numHuespedes"</span>: <span class="num">3</span> } <span class="comment">// Supera cap. doble (2)</span>
+{ <span class="key">"habitacionId"</span>: <span class="str">"&lt;SUITE&gt;"</span>,  <span class="key">"numHuespedes"</span>: <span class="num">4</span> } <span class="comment">// Exactamente al límite (válido)</span>
+      </div>
+      <div class="expected">
+        <span class="exp-bug">🐛 Sin test: validación de capacidad por tipo de habitación</span>
+        <span class="exp-info">Casos faltantes: 2 en individual, 3 en doble, 4 en suite (límite), 5 en suite</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUMEN FINAL -->
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 32px; margin-top: 44px;">
+    <h2 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:18px;">📋 Resumen de Pruebas Recomendadas para Atacar</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Vulnerabilidad</th><th>Módulo</th><th>Severidad</th><th>Caso de prueba sugerido</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">VULN-01</td><td>Checkout sin pago</td><td class="mono">reservationService</td><td><span style="color:var(--red);font-weight:700;">🔴 CRÍTICO</span></td><td>PATCH /completar sin factura</td></tr>
+          <tr><td class="mono">VULN-02</td><td>Reservaciones solapadas (fecha exacta)</td><td class="mono">reservationService</td><td><span style="color:var(--red);font-weight:700;">🔴 CRÍTICO</span></td><td>checkIn B = checkOut A</td></tr>
+          <tr><td class="mono">VULN-03</td><td>Factura sobre reservación completada</td><td class="mono">billingService</td><td><span style="color:var(--red);font-weight:700;">🔴 CRÍTICO</span></td><td>POST /facturacion tras completar</td></tr>
+          <tr><td class="mono">VULN-04</td><td>Forzar habitación a "disponible"</td><td class="mono">roomService</td><td><span style="color:var(--orange);font-weight:700;">🟠 ALTO</span></td><td>PATCH estado=disponible en ocupada</td></tr>
+          <tr><td class="mono">VULN-05</td><td>Factura huérfana al cancelar reservación</td><td class="mono">reservationService</td><td><span style="color:var(--orange);font-weight:700;">🟠 ALTO</span></td><td>Cancelar reservación con factura pendiente</td></tr>
+          <tr><td class="mono">VULN-06</td><td>DNI duplicado en actualización</td><td class="mono">guestValidator (update)</td><td><span style="color:var(--orange);font-weight:700;">🟠 ALTO</span></td><td>PATCH dni de huesped B al dni de A</td></tr>
+          <tr><td class="mono">VULN-07</td><td>Descuento decimal y floating-point</td><td class="mono">billingValidator</td><td><span style="color:var(--orange);font-weight:700;">🟠 ALTO</span></td><td>descuento=49.999</td></tr>
+          <tr><td class="mono">VULN-08</td><td>Nombre con caracteres Unicode</td><td class="mono">guestValidator</td><td><span style="color:var(--yellow);font-weight:700;">🟡 MEDIO</span></td><td>nombre="Ñoño" / "María José"</td></tr>
+          <tr><td class="mono">VULN-09</td><td>Check-in con fecha de hoy</td><td class="mono">reservationValidator</td><td><span style="color:var(--yellow);font-weight:700;">🟡 MEDIO</span></td><td>fechaCheckIn = today</td></tr>
+          <tr><td class="mono">VULN-10</td><td>Precio 3 decimales en PATCH</td><td class="mono">roomValidator (update)</td><td><span style="color:var(--yellow);font-weight:700;">🟡 MEDIO</span></td><td>PATCH precio=199.999</td></tr>
+          <tr><td class="mono">VULN-11</td><td>Eliminar huésped con reservación activa</td><td class="mono">guestService</td><td><span style="color:var(--yellow);font-weight:700;">🟡 MEDIO</span></td><td>DELETE huesped con reservacion confirmada</td></tr>
+          <tr><td class="mono">VULN-12</td><td>Capacidad por tipo de habitación</td><td class="mono">reservationService</td><td><span style="color:var(--yellow);font-weight:700;">🟡 MEDIO</span></td><td>2 huéspedes en habitación "individual"</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  ⚔️ Guerra de Testers — Análisis de Vulnerabilidades · Sistema de Hotel · Node.js · v1.0 · Solo uso académico
+</footer>
+</body>
+</html>

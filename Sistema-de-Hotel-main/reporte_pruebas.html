@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reporte de Pruebas — Sistema de Hotel</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root {
+      --bg: #0a0c18; --surface: #111827; --surface2: #1f2937;
+      --border: #1e293b; --accent: #38bdf8; --accent2: #7dd3fc;
+      --green: #4ade80; --green-dim: #14532d; --red: #f87171;
+      --red-dim: #450a0a; --yellow: #fbbf24; --cyan: #22d3ee;
+      --text: #f1f5f9; --text-dim: #64748b; --text-muted: #94a3b8;
+      --orange: #fb923c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+
+    .hero {
+      background: linear-gradient(135deg, #0a0c18 0%, #0f172a 50%, #0a0c18 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 52px 40px 44px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(56,189,248,.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.35);
+      border-radius: 100px; padding: 5px 16px;
+      font-size: 11px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--accent2); margin-bottom: 18px;
+    }
+    .hero h1 {
+      font-size: clamp(24px, 4.5vw, 48px); font-weight: 800; line-height: 1.15;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 12px;
+    }
+    .hero p { color: var(--text-muted); font-size: 15px; max-width: 580px; margin: 0 auto 24px; line-height: 1.7; }
+    .stats { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .stat { background: rgba(255,255,255,.04); border: 1px solid var(--border); border-radius: 12px; padding: 12px 22px; text-align: center; }
+    .stat-num { font-size: 26px; font-weight: 700; color: var(--accent2); }
+    .stat-lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .07em; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    .result-bar {
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid var(--border); border-radius: 14px;
+      padding: 22px 30px; display: flex; align-items: center; gap: 22px;
+      flex-wrap: wrap; margin-bottom: 40px;
+    }
+    .result-bar .pass { font-size: 38px; font-weight: 800; color: var(--green); }
+    .result-bar .label { font-size: 13px; color: var(--text-muted); }
+    .result-bar .divider { width: 1px; height: 44px; background: var(--border); }
+    .progress { flex: 1; min-width: 180px; }
+    .progress-bar { height: 7px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 5px; }
+    .progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--green), #16a34a); animation: grow 1.2s ease-out forwards; width: 0; }
+    @keyframes grow { to { width: 100%; } }
+
+    .section { margin-bottom: 52px; }
+    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+    .section-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .icon-hab { background: rgba(56,189,248,.15); }
+    .icon-hue { background: rgba(74,222,128,.12); }
+    .icon-res { background: rgba(251,191,36,.12); }
+    .icon-fac { background: rgba(251,146,60,.12); }
+    .section-header h2 { font-size: 20px; font-weight: 700; color: #fff; }
+    .section-header span { font-size: 12px; color: var(--text-dim); display: block; margin-top: 2px; }
+
+    .subsection { margin-bottom: 32px; }
+    .subsection-title {
+      font-size: 13px; font-weight: 600; color: var(--accent2);
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .subsection-title::before { content: ''; width: 3px; height: 13px; background: var(--accent); border-radius: 99px; display: inline-block; }
+    .field-info { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 14px; margin-bottom: 10px; font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+    .table-wrap { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { background: var(--surface2); }
+    thead th { padding: 11px 16px; text-align: left; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-dim); border-bottom: 1px solid var(--border); }
+    tbody tr { background: var(--surface); transition: background .15s; }
+    tbody tr:hover { background: var(--surface2); }
+    tbody tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+    td { padding: 10px 16px; vertical-align: middle; line-height: 1.5; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .class-cell { font-weight: 500; color: var(--text-muted); font-size: 12px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; padding: 3px 9px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .badge-valid   { background: var(--green-dim); color: var(--green); border: 1px solid #166534; }
+    .badge-invalid { background: var(--red-dim);   color: var(--red);   border: 1px solid #7f1d1d; }
+    .badge-limit   { background: rgba(56,189,248,.12); color: var(--accent2); border: 1px solid rgba(56,189,248,.3); }
+    .badge-biz     { background: rgba(251,191,36,.1); color: var(--yellow); border: 1px solid rgba(251,191,36,.3); }
+
+    .avl-visual { display: flex; gap: 3px; align-items: center; justify-content: center; padding: 18px; background: var(--surface2); border-radius: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+    .avl-block { padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; text-align: center; min-width: 68px; font-family: 'JetBrains Mono', monospace; }
+    .avl-inv  { background: var(--red-dim);  color: var(--red);    border: 1px solid #7f1d1d; }
+    .avl-val  { background: var(--green-dim); color: var(--green);  border: 1px solid #166534; }
+    .avl-lim  { background: rgba(56,189,248,.12); color: var(--accent2); border: 1px solid rgba(56,189,248,.4); }
+    .avl-arrow { color: var(--text-dim); font-size: 14px; }
+    .avl-sub  { font-size: 9px; font-weight: 400; opacity: .75; display: block; margin-top: 1px; }
+
+    .module-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 40px; }
+    .mod-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; transition: border-color .2s, transform .2s; }
+    .mod-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .mod-icon { font-size: 22px; margin-bottom: 6px; }
+    .mod-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .mod-count { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .mod-count strong { color: var(--accent2); }
+    .lang-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.3); border-radius: 8px; padding: 3px 10px; font-size: 11px; font-weight: 600; color: var(--yellow); margin-left: 10px; }
+
+    footer { text-align: center; padding: 22px; border-top: 1px solid var(--border); color: var(--text-dim); font-size: 12px; }
+    @media (max-width: 640px) { .hero { padding: 32px 18px 28px; } .container { padding: 20px 14px 60px; } th, td { padding: 8px 10px; } }
+  </style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-badge">⚔️ Guerra de Testers · Análisis del equipo rival</div>
+  <h1>🏨 Sistema de Hotel — Reporte de Pruebas</h1>
+  <p>Análisis completo de las pruebas Black Box: Partición de Equivalencia (PE) y Análisis de Valores Límite (AVL) del equipo contrario</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">77</div><div class="stat-lbl">Tests totales</div></div>
+    <div class="stat"><div class="stat-num">42</div><div class="stat-lbl">Casos PE</div></div>
+    <div class="stat"><div class="stat-num">35</div><div class="stat-lbl">Casos AVL</div></div>
+    <div class="stat"><div class="stat-num">4</div><div class="stat-lbl">Módulos</div></div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- RESULTADO GLOBAL -->
+  <div class="result-bar">
+    <div>
+      <div class="pass">77 cases</div>
+      <div class="label">tests documentados · Node.js + Jest</div>
+    </div>
+    <div class="divider"></div>
+    <div class="progress">
+      <div style="font-size:12px;font-weight:600;color:var(--text);">Tecnología <span class="lang-badge">🟨 JavaScript</span></div>
+      <div style="font-size:11px;color:var(--text-dim);">Express · Jest · Supertest · In-memory store</div>
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+    </div>
+    <div class="divider"></div>
+    <div>
+      <div style="font-size:17px;font-weight:700;color:var(--cyan);">REST API</div>
+      <div class="label" style="font-family:'JetBrains Mono',monospace;">HTTP endpoints</div>
+    </div>
+  </div>
+
+  <!-- RESUMEN POR MÓDULO -->
+  <div class="module-summary">
+    <div class="mod-card">
+      <div class="mod-icon">🛏️</div>
+      <div class="mod-title">Habitaciones</div>
+      <div class="mod-count">POST, GET · <strong>26 tests</strong></div>
+      <div class="mod-count">Número [100-999] · Precio [50-5000] · Piso [1-20]</div>
+    </div>
+    <div class="mod-card">
+      <div class="mod-icon">👤</div>
+      <div class="mod-title">Huéspedes</div>
+      <div class="mod-count">POST, GET, DELETE · <strong>27 tests</strong></div>
+      <div class="mod-count">DNI 8 dígitos · Edad [18-120] · Nombre [2-100]</div>
+    </div>
+    <div class="mod-card">
+      <div class="mod-icon">📅</div>
+      <div class="mod-title">Reservaciones</div>
+      <div class="mod-count">POST, PATCH · <strong>15 tests</strong></div>
+      <div class="mod-count">Fechas futuras · Noches ≤365 · Huéspedes [1-4]</div>
+    </div>
+    <div class="mod-card">
+      <div class="mod-icon">💳</div>
+      <div class="mod-title">Facturación</div>
+      <div class="mod-count">POST, PATCH · <strong>18 tests</strong></div>
+      <div class="mod-count">Métodos pago · Descuento [0-50%] · IGV 18%</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ HABITACIONES ═══════════════════ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon icon-hab">🛏️</div>
+      <div><h2>Módulo de Habitaciones <code style="font-size:12px;color:var(--accent2);font-family:'JetBrains Mono',monospace;">POST /api/habitaciones</code></h2>
+      <span>26 tests · PE + AVL · Número, Tipo, Precio, Piso</span></div>
+    </div>
+
+    <!-- NÚMERO -->
+    <div class="subsection">
+      <div class="subsection-title">AVL-HAB-01 · Número de habitación [100 – 999]</div>
+      <div class="field-info">Regla: 100 ≤ numero ≤ 999 · debe ser entero · no duplicado</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">99<span class="avl-sub">MIN−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">100<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-val">101<span class="avl-sub">MIN+1</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">401<span class="avl-sub">interior</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">998<span class="avl-sub">MAX−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">999<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">1000<span class="avl-sub">MAX+1</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">AVL-NUM1</td><td class="class-cell">MIN − 1</td><td class="mono">99</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-NUM2</td><td class="class-cell"><span class="badge badge-limit">Límite inferior</span></td><td class="mono">100</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">AVL-NUM3</td><td class="class-cell">MIN + 1</td><td class="mono">103</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">AVL-NUM4</td><td class="class-cell">MAX − 1</td><td class="mono">998</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>5</td><td class="mono">AVL-NUM5</td><td class="class-cell"><span class="badge badge-limit">Límite superior</span></td><td class="mono">999</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>6</td><td class="mono">AVL-NUM6</td><td class="class-cell">MAX + 1</td><td class="mono">1000</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">PE-I-NUM1</td><td class="class-cell">Inválida — negativo</td><td class="mono">-1</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>8</td><td class="mono">PE-I-NUM2</td><td class="class-cell">Inválida — decimal</td><td class="mono">101.5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>9</td><td class="mono">PE-I-NUM3</td><td class="class-cell">Inválida — texto</td><td class="mono">"abc"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>10</td><td class="mono">PE-I-NUM4</td><td class="class-cell">Inválida — duplicado</td><td class="mono">101</td><td><span class="badge badge-invalid">✗ Conflicto</span></td><td class="mono">409</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TIPO -->
+    <div class="subsection">
+      <div class="subsection-title">PE-HAB-02 · Tipo de habitación</div>
+      <div class="field-info">Permitidos: "individual" | "doble" | "suite" · case-insensitive</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V-TIPO1</td><td class="class-cell">Válida</td><td class="mono">"individual"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-V-TIPO2</td><td class="class-cell">Válida</td><td class="mono">"doble"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">PE-V-TIPO3</td><td class="class-cell">Válida</td><td class="mono">"suite"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">PE-I-TIPO1</td><td class="class-cell">Inválida — no existe</td><td class="mono">"triple"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-TIPO2</td><td class="class-cell">Inválida — vacío</td><td class="mono">""</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-TIPO3</td><td class="class-cell">Inválida — número</td><td class="mono">123</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRECIO -->
+    <div class="subsection">
+      <div class="subsection-title">AVL-HAB-03 · Precio por noche [S/50.00 – S/5,000.00]</div>
+      <div class="field-info">Regla: 50.00 ≤ precio ≤ 5000.00 · máximo 2 decimales</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">S/49.99<span class="avl-sub">MIN−ε</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">S/50.00<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-val">S/50.01<span class="avl-sub">MIN+ε</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">S/4,999.99<span class="avl-sub">MAX−ε</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">S/5,000<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">S/5,000.01<span class="avl-sub">MAX+ε</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Posición</th><th>Valor (S/)</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">AVL-PRECIO1</td><td>MIN − ε</td><td class="mono">49.99</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-PRECIO2</td><td><span class="badge badge-limit">Límite inferior</span></td><td class="mono">50.00</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">AVL-PRECIO3</td><td>MIN + ε</td><td class="mono">50.01</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">AVL-PRECIO4</td><td>MAX − ε</td><td class="mono">4,999.99</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>5</td><td class="mono">AVL-PRECIO5</td><td><span class="badge badge-limit">Límite superior</span></td><td class="mono">5,000.00</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>6</td><td class="mono">AVL-PRECIO6</td><td>MAX + ε</td><td class="mono">5,000.01</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">PE-I-PRECIO1</td><td>Negativo</td><td class="mono">-100</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>8</td><td class="mono">PE-I-PRECIO2</td><td>Cero</td><td class="mono">0</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PISO -->
+    <div class="subsection">
+      <div class="subsection-title">AVL-HAB-04 · Piso [1 – 20]</div>
+      <div class="field-info">Regla: 1 ≤ piso ≤ 20 · debe ser entero</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">0<span class="avl-sub">MIN−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">1<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">4<span class="avl-sub">interior</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-lim">20<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">21<span class="avl-sub">MAX+1</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Posición</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">AVL-PISO1</td><td>MIN − 1</td><td class="mono">0</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-PISO2</td><td><span class="badge badge-limit">Límite inferior</span></td><td class="mono">1</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">AVL-PISO3</td><td><span class="badge badge-limit">Límite superior</span></td><td class="mono">20</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">AVL-PISO4</td><td>MAX + 1</td><td class="mono">21</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-PISO1</td><td>Negativo</td><td class="mono">-5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-PISO2</td><td>Decimal</td><td class="mono">2.5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ HUÉSPEDES ═══════════════════ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon icon-hue">👤</div>
+      <div><h2>Módulo de Huéspedes <code style="font-size:12px;color:var(--green);font-family:'JetBrains Mono',monospace;">POST /api/huespedes</code></h2>
+      <span>27 tests · Nombre, DNI, Edad, Teléfono, Email</span></div>
+    </div>
+
+    <!-- NOMBRE -->
+    <div class="subsection">
+      <div class="subsection-title">AVL-HUE-01 · Nombre [2 – 100 caracteres]</div>
+      <div class="field-info">Regla: 2 ≤ len ≤ 100 · solo letras y espacios (no números ni especiales)</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">1<span class="avl-sub">MIN−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">2<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-val">3<span class="avl-sub">MIN+1</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-lim">100<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">101<span class="avl-sub">MAX+1</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V1</td><td class="class-cell">Válida — completo</td><td class="mono">"Juan Carlos Pérez"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-I1</td><td class="class-cell">Inválida — vacío</td><td class="mono">""</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>3</td><td class="mono">PE-I2</td><td class="class-cell">Inválida — números</td><td class="mono">"Juan123"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>4</td><td class="mono">PE-I3</td><td class="class-cell">Inválida — especiales</td><td class="mono">"Juan@#$"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I4</td><td class="class-cell">Inválida — null</td><td class="mono">null</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">AVL-1</td><td class="class-cell">MIN − 1 (1 char)</td><td class="mono">"A"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">AVL-2</td><td class="class-cell"><span class="badge badge-limit">Límite inferior</span></td><td class="mono">"Ab"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>8</td><td class="mono">AVL-3</td><td class="class-cell">MIN + 1</td><td class="mono">"Abc"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>9</td><td class="mono">AVL-4</td><td class="class-cell"><span class="badge badge-limit">Límite superior</span></td><td class="mono">"A" × 100</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>10</td><td class="mono">AVL-5</td><td class="class-cell">MAX + 1</td><td class="mono">"A" × 101</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DNI -->
+    <div class="subsection">
+      <div class="subsection-title">PE-HUE-02 · DNI — exactamente 8 dígitos numéricos</div>
+      <div class="field-info">Regla: /^\d{8}$/ · sin letras · único en el sistema</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V-DNI</td><td class="class-cell">Válida — 8 dígitos</td><td class="mono">"87654321"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-I-DNI1</td><td class="class-cell">Inválida — letras</td><td class="mono">"1234abcd"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>3</td><td class="mono">AVL-DNI1</td><td class="class-cell">MIN − 1 (7 dígitos)</td><td class="mono">"1234567"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>4</td><td class="mono">AVL-DNI2</td><td class="class-cell">MAX + 1 (9 dígitos)</td><td class="mono">"123456789"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-DNI2</td><td class="class-cell">Inválida — vacío</td><td class="mono">""</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-DNI3</td><td class="class-cell">Inválida — duplicado</td><td class="mono">DNI existente</td><td><span class="badge badge-invalid">✗ Conflicto</span></td><td class="mono">409</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EDAD -->
+    <div class="subsection">
+      <div class="subsection-title">AVL-HUE-03 · Edad [18 – 120]</div>
+      <div class="field-info">Regla: 18 ≤ edad ≤ 120 · debe ser entero</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">17<span class="avl-sub">MIN−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">18<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-val">19<span class="avl-sub">MIN+1</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">30<span class="avl-sub">interior</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">119<span class="avl-sub">MAX−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">120<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">121<span class="avl-sub">MAX+1</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Posición</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">AVL-EDAD1</td><td>MIN − 1</td><td class="mono">17</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-EDAD2</td><td><span class="badge badge-limit">Límite inferior</span></td><td class="mono">18</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">AVL-EDAD3</td><td>MIN + 1</td><td class="mono">19</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">AVL-EDAD4</td><td>MAX − 1</td><td class="mono">119</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>5</td><td class="mono">AVL-EDAD5</td><td><span class="badge badge-limit">Límite superior</span></td><td class="mono">120</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>6</td><td class="mono">AVL-EDAD6</td><td>MAX + 1</td><td class="mono">121</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">PE-I-EDAD1</td><td>Negativo</td><td class="mono">-1</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>8</td><td class="mono">PE-I-EDAD2</td><td>Cero</td><td class="mono">0</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>9</td><td class="mono">PE-I-EDAD3</td><td>Decimal</td><td class="mono">25.5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>10</td><td class="mono">PE-I-EDAD4</td><td>Texto</td><td class="mono">"veinticinco"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TELÉFONO + EMAIL -->
+    <div class="subsection">
+      <div class="subsection-title">PE-HUE-04 · Teléfono y Email</div>
+      <div class="field-info">Teléfono: /^9\d{8}$/ (9 dígitos, empieza con 9) · Email: formato estándar</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Campo</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-I-TEL1</td><td>Teléfono</td><td class="class-cell">No empieza con 9</td><td class="mono">"887654321"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-TEL1</td><td>Teléfono</td><td class="class-cell">8 dígitos (MIN−1)</td><td class="mono">"98765432"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>3</td><td class="mono">AVL-TEL2</td><td>Teléfono</td><td class="class-cell">10 dígitos (MAX+1)</td><td class="mono">"9876543210"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>4</td><td class="mono">PE-I-EMAIL1</td><td>Email</td><td class="class-cell">Sin @</td><td class="mono">"juancorreo.com"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-EMAIL2</td><td>Email</td><td class="class-cell">Sin dominio</td><td class="mono">"juan@"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-EMAIL3</td><td>Email</td><td class="class-cell">Vacío</td><td class="mono">""</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ RESERVACIONES ═══════════════════ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon icon-res">📅</div>
+      <div><h2>Módulo de Reservaciones <code style="font-size:12px;color:var(--yellow);font-family:'JetBrains Mono',monospace;">POST /api/reservaciones</code></h2>
+      <span>15 tests · Fechas, Huéspedes, Reglas de negocio</span></div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">PE-RES-01 · Fechas (check-in / check-out)</div>
+      <div class="field-info">Check-in: fecha futura en formato YYYY-MM-DD · Check-out &gt; Check-in · Estadía ≤ 365 noches</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Escenario</th><th>Datos</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V1</td><td class="class-cell">Válida — 2 noches</td><td class="mono">hoy+1 → hoy+3</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-I-FECHA1</td><td class="class-cell">Check-in en el pasado</td><td class="mono">2020-01-01</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>3</td><td class="mono">PE-I-FECHA2</td><td class="class-cell">Check-out = Check-in</td><td class="mono">mismo día</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>4</td><td class="mono">PE-I-FECHA3</td><td class="class-cell">Check-out &lt; Check-in</td><td class="mono">hoy+5 → hoy+2</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-FECHA4</td><td class="class-cell">Formato inválido</td><td class="mono">"01/01/2027"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-FECHA5</td><td class="class-cell">Fecha inexistente</td><td class="mono">"2027-02-31"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">AVL-FECHA1</td><td class="class-cell"><span class="badge badge-limit">1 noche (mínimo)</span></td><td class="mono">hoy+1 → hoy+2</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>8</td><td class="mono">AVL-FECHA2</td><td class="class-cell">367 noches (MAX+2)</td><td class="mono">hoy+1 → hoy+367</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">PE-RES-02 · Número de huéspedes y reglas de negocio</div>
+      <div class="field-info">numHuespedes: 1 ≤ n ≤ 4 (máximo según tipo de habitación) · Habitación debe estar disponible</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Escenario</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-I-HUE1</td><td class="class-cell">0 huéspedes</td><td class="mono">0</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">PE-I-HUE2</td><td class="class-cell">Negativo</td><td class="mono">-1</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>3</td><td class="mono">PE-I-HUE3</td><td class="class-cell">Supera límite (5)</td><td class="mono">5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>4</td><td class="mono">PE-I-HUE4</td><td class="class-cell">Decimal</td><td class="mono">1.5</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-NEG1</td><td class="class-cell">Huésped inexistente</td><td class="mono">UUID falso</td><td><span class="badge badge-invalid">✗ No encontrado</span></td><td class="mono">404</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-NEG2</td><td class="class-cell">Habitación inexistente</td><td class="mono">UUID falso</td><td><span class="badge badge-invalid">✗ No encontrado</span></td><td class="mono">404</td></tr>
+            <tr><td>7</td><td class="mono">PE-I-NEG3</td><td class="class-cell">Habitación en mantenimiento</td><td class="mono">estado≠disponible</td><td><span class="badge badge-invalid">✗ No procesable</span></td><td class="mono">422</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FACTURACIÓN ═══════════════════ -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-icon icon-fac">💳</div>
+      <div><h2>Módulo de Facturación <code style="font-size:12px;color:var(--orange);font-family:'JetBrains Mono',monospace;">POST /api/facturacion</code></h2>
+      <span>18 tests · Método de pago, Descuento [0-50%], IGV 18%</span></div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">PE-FAC-01 · Método de pago</div>
+      <div class="field-info">Permitidos: "efectivo" | "tarjeta" | "transferencia" · case-insensitive</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Clase</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V-PAGO1</td><td class="class-cell">Válida</td><td class="mono">"efectivo"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-V-PAGO2</td><td class="class-cell">Válida</td><td class="mono">"tarjeta"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">PE-V-PAGO3</td><td class="class-cell">Válida</td><td class="mono">"transferencia"</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">PE-I-PAGO1</td><td class="class-cell">Inválido — no existe</td><td class="mono">"bitcoin"</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>5</td><td class="mono">PE-I-PAGO2</td><td class="class-cell">Inválido — vacío</td><td class="mono">""</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>6</td><td class="mono">PE-I-PAGO3</td><td class="class-cell">Inválido — número</td><td class="mono">123</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">AVL-FAC-02 · Descuento adicional [0% – 50%]</div>
+      <div class="field-info">Regla: 0 ≤ descuento ≤ 50 · porcentaje entero o decimal · opcional (default 0)</div>
+      <div class="avl-visual">
+        <div class="avl-block avl-inv">-1%<span class="avl-sub">MIN−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">0%<span class="avl-sub">MIN ↓</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-val">1%<span class="avl-sub">MIN+1</span></div><div class="avl-arrow">···</div>
+        <div class="avl-block avl-val">49%<span class="avl-sub">MAX−1</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-lim">50%<span class="avl-sub">MAX ↑</span></div><div class="avl-arrow">→</div>
+        <div class="avl-block avl-inv">51%<span class="avl-sub">MAX+1</span></div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Posición</th><th>Valor</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">AVL-DESC1</td><td>MIN − 1</td><td class="mono">-1</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>2</td><td class="mono">AVL-DESC2</td><td><span class="badge badge-limit">Límite inferior</span></td><td class="mono">0</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>3</td><td class="mono">AVL-DESC3</td><td>MIN + 1</td><td class="mono">1</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>4</td><td class="mono">AVL-DESC4</td><td>MAX − 1</td><td class="mono">49</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>5</td><td class="mono">AVL-DESC5</td><td><span class="badge badge-limit">Límite superior</span></td><td class="mono">50</td><td><span class="badge badge-valid">✓ Aceptar</span></td><td class="mono">201</td></tr>
+            <tr><td>6</td><td class="mono">AVL-DESC6</td><td>MAX + 1</td><td class="mono">51</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+            <tr><td>7</td><td class="mono">PE-I-DESC1</td><td>Clase inválida</td><td class="mono">100</td><td><span class="badge badge-invalid">✗ Rechazar</span></td><td class="mono">400</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">PE-FAC-03 · Reglas de negocio de facturación</div>
+      <div class="field-info">No duplicar facturas activas · No facturar reservaciones canceladas · IGV automático 18%</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>ID Test</th><th>Escenario</th><th>Esperado</th><th>HTTP</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="mono">PE-V1</td><td class="class-cell">Factura normal — incluye IGV</td><td><span class="badge badge-valid">✓ igv &gt; 0</span></td><td class="mono">201</td></tr>
+            <tr><td>2</td><td class="mono">PE-I-NEG1</td><td class="class-cell">Reservación inexistente</td><td><span class="badge badge-invalid">✗ No encontrada</span></td><td class="mono">404</td></tr>
+            <tr><td>3</td><td class="mono">PE-I-NEG2</td><td class="class-cell">Factura duplicada (activa)</td><td><span class="badge badge-invalid">✗ Conflicto</span></td><td class="mono">409</td></tr>
+            <tr><td>4</td><td class="mono">PAGAR</td><td class="class-cell">Pagar factura pendiente</td><td><span class="badge badge-valid">✓ estado=pagada</span></td><td class="mono">200</td></tr>
+            <tr><td>5</td><td class="mono">PAGAR×2</td><td class="class-cell">Pagar factura ya pagada</td><td><span class="badge badge-invalid">✗ No procesable</span></td><td class="mono">422</td></tr>
+            <tr><td>6</td><td class="mono">ANULAR</td><td class="class-cell">Anular factura pendiente</td><td><span class="badge badge-valid">✓ estado=anulada</span></td><td class="mono">200</td></tr>
+            <tr><td>7</td><td class="mono">ANULAR-PAGADA</td><td class="class-cell">Anular factura ya pagada</td><td><span class="badge badge-invalid">✗ No procesable</span></td><td class="mono">422</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  🏨 Sistema de Hotel — Análisis de Pruebas · Guerra de Testers · JavaScript + Node.js · v1.0
+</footer>
+</body>
+</html>
